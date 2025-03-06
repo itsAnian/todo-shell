@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 const int argnumber = 1;
-const char* todolist = "todo.json";
-const char* todolist_history = "todo_history.json";
+const char* todolist = "~/.todo/todo.json";
+const char* todolist_history = "~/.todo/todo_history.json";
 
 void throwError(const char* message)
 {
@@ -14,7 +15,26 @@ void throwError(const char* message)
     exit(EXIT_FAILURE);
 }
 
-cJSON CreateObject(int id, char* titel, char* description, char* flags[], int flagCount)
+void saveJsonToFile(const char* filename, cJSON* json)
+{ char* jsonString = cJSON_Print(json);
+    printf("%s", jsonString);
+    if (!jsonString) {
+        throwError("Failed to convert JSON to string\n");
+    }
+
+    FILE* file = fopen(filename, "a");
+    if (!file) {
+        free(jsonString);
+        char *errorMsg = "Failed to open file: %s\n", filename;
+        throwError(errorMsg);
+    }
+
+    fprintf(file, "%s", jsonString);
+    fclose(file);
+    free(jsonString);
+}
+
+cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int flagCount)
 {
     cJSON* json = cJSON_CreateObject();
     cJSON_AddNumberToObject(json, "id", id);
@@ -26,15 +46,15 @@ cJSON CreateObject(int id, char* titel, char* description, char* flags[], int fl
     }
     cJSON_AddItemToObject(json, "flags", flagsArray);
 
-    char* jsonString = cJSON_Print(json);
-    printf("JSON:\n%s\n", jsonString);
-    return *json;
+    return json;
 }
 
 void Operation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
-        CreateObject(id, titel, description, flags, flagCount);
+        cJSON* json = CreateObject(id, titel, description, flags, flagCount);
+        saveJsonToFile(todolist, json);
+        cJSON_Delete(json);
     }
     if (operation == 2) { }
     if (operation == 3) { }
