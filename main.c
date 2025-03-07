@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 const int argnumber = 1;
 const char* todolist = "/home/anian/.todo/todo.json";
@@ -25,7 +26,6 @@ void SaveJsonToFile(const char* filename, cJSON* json)
 
     FILE* file = fopen(filename, "w+");
     if (!file) {
-        free(jsonString);
         ThrowError("Failed to open File (SaveJsonToFile())");
     }
 
@@ -53,15 +53,29 @@ cJSON* ReadJsonFromFile(const char* filename){
     free(jsonData);
 
     if (!jsonArray){
-        ThrowError("Parsing failed");
+        cJSON *jsonArray = cJSON_CreateArray();
+        printf("Empty file, or parsing failed");
+        return jsonArray;
     }
     return jsonArray;
 }
 
-cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int flagCount)
+char* GenerateId(int length) {
+    srand(time(NULL));
+    char* id = malloc(length);
+    const char charset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+    for (int i = 0; i < length; i++) {
+        int randomIndex = rand() % (sizeof(charset) - 1);
+        id[i] = charset[randomIndex];
+    }
+    return id;
+}
+
+cJSON* CreateObject(char* id, char* titel, char* description, char* flags[], int flagCount)
 {
     cJSON* json = cJSON_CreateObject();
-    cJSON_AddNumberToObject(json, "id", id);
+    char* randomId = GenerateId(5);
+    cJSON_AddStringToObject(json, "id", randomId);
     cJSON_AddStringToObject(json, "titel", titel);
     cJSON_AddStringToObject(json, "description", description);
     cJSON* flagsArray = cJSON_CreateArray();
@@ -73,7 +87,7 @@ cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int f
     return json;
 }
 
-void ExecuteOperation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
+void ExecuteOperation(char* id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
         //ADD
@@ -81,8 +95,6 @@ void ExecuteOperation(int id, char* titel, char* description, char* flags[], int
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
         SaveJsonToFile(todolist, todos);
-        cJSON_Delete(newTodo);
-        cJSON_Delete(todos);
     }
     if (operation == 2) {
         //EDIT
@@ -98,7 +110,7 @@ void ExecuteOperation(int id, char* titel, char* description, char* flags[], int
         cJSON* todos = ReadJsonFromFile(todolist);
         for(int i = 0; i < cJSON_GetArraySize(todos); i++){
             cJSON* todo = cJSON_GetArrayItem(todos, i);
-            printf("\nId: %d\nTitel: %s\nDescription: %s\n", cJSON_GetObjectItem(todo, "id")->valueint, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
+            printf("\nId: %s\nTitel: %s\nDescription: %s\n", cJSON_GetObjectItem(todo, "id")->valuestring, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
             cJSON *flags = cJSON_GetObjectItem(todo, "flags");
             printf("Flags: ");
             for(int ii = 0; ii < cJSON_GetArraySize(flags); ii++){
@@ -142,7 +154,7 @@ int EvaluateOperation(char* argv[])
 
 int main(int argc, char* argv[])
 {
-    int id;
+    char* id;
     char* titel;
     char* description;
     char* flags[argc];
@@ -155,6 +167,9 @@ int main(int argc, char* argv[])
         }
         if (strcmp(argv[i], "-d") == 0) {
             description = argv[i + 1];
+        }
+        if (strcmp(argv[i], "-i") == 0) {
+            id = argv[i + 1];
         }
         if (argv[i][0] == '#') {
             flags[flagCount] = argv[i];

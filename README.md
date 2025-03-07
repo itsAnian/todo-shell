@@ -18,7 +18,7 @@
 - It will be written in C
 - It will save the todos in a file (How to handle injections?)
 - Add todos with "todo add -t "..." -d "..." #... #... 
-    -t = title | -d = description | #... = topic
+    -t = title | -d = description | #... = topic | -i = id (edit, remove & finish)
 - global todos will be saved in ~/.todolist/todo & ~/.todolist/todo_history
 - (local todos will be saved in ./.todolist/todo ./.todolist/todo_history)
 - the files will be in json format where the id is the "primary key"
