@@ -6,8 +6,8 @@
 #include <unistd.h>
 
 const int argnumber = 1;
-const char* todolist = "~/.todo/todo.json";
-const char* todolist_history = "~/.todo/todo_history.json";
+const char* todolist = "home/anian/.todo/todo.json";
+const char* todolist_history = "home/anian/.todo/todo_history.json";
 
 void ThrowError(const char* message)
 {
@@ -23,16 +23,39 @@ void SaveJsonToFile(const char* filename, cJSON* json)
         ThrowError("Failed to convert JSON to string\n");
     }
 
-    FILE* file = fopen(filename, "a");
+    FILE* file = fopen(filename, "w");
     if (!file) {
         free(jsonString);
-        char *errorMsg = "Failed to open file: %s\n", filename;
-        ThrowError(errorMsg);
+        ThrowError("Failed to open File (SaveJsonToFile())");
     }
 
     fprintf(file, "%s", jsonString);
     fclose(file);
     free(jsonString);
+}
+
+cJSON* ReadJsonFromFile(const char* filename){
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        ThrowError("Failed to open File (ReadJsonFromFile())");
+    }
+
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    rewind(file);
+
+    char *jsonData = (char *)malloc(length + 1);
+    fread(jsonData, 1, length, file);
+    jsonData[length] = '\0';
+    fclose(file);
+
+    cJSON *jsonArray = cJSON_Parse(jsonData);
+    free(jsonData);
+
+    if (!jsonArray){
+        ThrowError("Parsing failed");
+    }
+    return jsonArray;
 }
 
 cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int flagCount)
@@ -53,9 +76,12 @@ cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int f
 void ExecuteOperation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
-        cJSON* json = CreateObject(id, titel, description, flags, flagCount);
-        SaveJsonToFile(todolist, json);
-        cJSON_Delete(json);
+        cJSON* newTodo = CreateObject(id, titel, description, flags, flagCount);
+        cJSON* todos = ReadJsonFromFile(todolist);
+        cJSON_AddItemToArray(todos, newTodo);
+        SaveJsonToFile(todolist, todos);
+        cJSON_Delete(newTodo);
+        cJSON_Delete(todos);
     }
     if (operation == 2) { }
     if (operation == 3) { }
