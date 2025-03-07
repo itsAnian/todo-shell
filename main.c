@@ -6,8 +6,8 @@
 #include <unistd.h>
 
 const int argnumber = 1;
-const char* todolist = "home/anian/.todo/todo.json";
-const char* todolist_history = "home/anian/.todo/todo_history.json";
+const char* todolist = "/home/anian/.todo/todo.json";
+const char* todolist_history = "/home/anian/.todo/todo_history.json";
 
 void ThrowError(const char* message)
 {
@@ -23,7 +23,7 @@ void SaveJsonToFile(const char* filename, cJSON* json)
         ThrowError("Failed to convert JSON to string\n");
     }
 
-    FILE* file = fopen(filename, "w");
+    FILE* file = fopen(filename, "w+");
     if (!file) {
         free(jsonString);
         ThrowError("Failed to open File (SaveJsonToFile())");
@@ -76,6 +76,7 @@ cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int f
 void ExecuteOperation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
+        //ADD
         cJSON* newTodo = CreateObject(id, titel, description, flags, flagCount);
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
@@ -83,10 +84,29 @@ void ExecuteOperation(int id, char* titel, char* description, char* flags[], int
         cJSON_Delete(newTodo);
         cJSON_Delete(todos);
     }
-    if (operation == 2) { }
-    if (operation == 3) { }
-    if (operation == 4) { }
-    if (operation == 5) { }
+    if (operation == 2) {
+        //EDIT
+    }
+    if (operation == 3) {
+        //REMOVE
+    }
+    if (operation == 4) {
+        //FINISH
+    }
+    if (operation == 5) {
+        //LIST
+        cJSON* todos = ReadJsonFromFile(todolist);
+        for(int i = 0; i < cJSON_GetArraySize(todos); i++){
+            cJSON* todo = cJSON_GetArrayItem(todos, i);
+            printf("\nId: %d\nTitel: %s\nDescription: %s\n", cJSON_GetObjectItem(todo, "id")->valueint, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
+            cJSON *flags = cJSON_GetObjectItem(todo, "flags");
+            printf("Flags: ");
+            for(int ii = 0; ii < cJSON_GetArraySize(flags); ii++){
+                printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
+            }
+            printf("\n");
+        }
+    }
 }
 
 int EvaluateOperation(char* argv[])
@@ -94,23 +114,23 @@ int EvaluateOperation(char* argv[])
     int operation = 0;
     switch (*argv[argnumber]) {
     case 'a':
-        printf("ADD\n");
+        //ADD
         operation = 1;
         break;
     case 'e':
-        printf("EDIT\n");
+        //EDIT
         operation = 2;
         break;
     case 'r':
-        printf("REMOVE\n");
+        //REMOVE
         operation = 3;
         break;
     case 'f':
-        printf("FINISH\n");
+        //FINISH
         operation = 4;
         break;
     case 'l':
-        printf("LIST\n");
+        //LIST
         operation = 5;
         break;
     }
