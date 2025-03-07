@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 const int argnumber = 1;
 const char* todolist = "/home/anian/.todo/todo.json";
@@ -34,8 +34,9 @@ void SaveJsonToFile(const char* filename, cJSON* json)
     free(jsonString);
 }
 
-cJSON* ReadJsonFromFile(const char* filename){
-    FILE *file = fopen(filename, "r");
+cJSON* ReadJsonFromFile(const char* filename)
+{
+    FILE* file = fopen(filename, "r");
     if (!file) {
         ThrowError("Failed to open File (ReadJsonFromFile())");
     }
@@ -44,23 +45,24 @@ cJSON* ReadJsonFromFile(const char* filename){
     long length = ftell(file);
     rewind(file);
 
-    char *jsonData = (char *)malloc(length + 1);
+    char* jsonData = (char*)malloc(length + 1);
     fread(jsonData, 1, length, file);
     jsonData[length] = '\0';
     fclose(file);
 
-    cJSON *jsonArray = cJSON_Parse(jsonData);
+    cJSON* jsonArray = cJSON_Parse(jsonData);
     free(jsonData);
 
-    if (!jsonArray){
-        cJSON *jsonArray = cJSON_CreateArray();
+    if (!jsonArray) {
+        cJSON* jsonArray = cJSON_CreateArray();
         printf("Empty file, or parsing failed");
         return jsonArray;
     }
     return jsonArray;
 }
 
-char* GenerateId(int length) {
+char* GenerateId(int length)
+{
     srand(time(NULL));
     char* id = malloc(length);
     const char charset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -90,30 +92,51 @@ cJSON* CreateObject(char* id, char* titel, char* description, char* flags[], int
 void ExecuteOperation(char* id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
-        //ADD
+        // ADD
         cJSON* newTodo = CreateObject(id, titel, description, flags, flagCount);
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
         SaveJsonToFile(todolist, todos);
     }
     if (operation == 2) {
-        //EDIT
+        // EDIT
     }
     if (operation == 3) {
-        //REMOVE
+        // REMOVE
+        cJSON* todos = ReadJsonFromFile(todolist);
+        for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
+            cJSON* todo = cJSON_GetArrayItem(todos, i);
+            if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
+                cJSON_DeleteItemFromArray(todos, i);
+                break;
+            }
+        }
+        SaveJsonToFile(todolist, todos);
     }
     if (operation == 4) {
-        //FINISH
+        // FINISH
+        cJSON* todos = ReadJsonFromFile(todolist);
+        cJSON* todo_history = ReadJsonFromFile(todolist_history);
+        for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
+            cJSON* todo = cJSON_GetArrayItem(todos, i);
+            if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
+                cJSON_AddItemToArray(todo_history, cJSON_Duplicate(todo, 1));
+                cJSON_DeleteItemFromArray(todos, i);
+                break;
+            }
+        }
+        SaveJsonToFile(todolist, todos);
+        SaveJsonToFile(todolist_history, todo_history);
     }
     if (operation == 5) {
-        //LIST
+        // LIST
         cJSON* todos = ReadJsonFromFile(todolist);
-        for(int i = 0; i < cJSON_GetArraySize(todos); i++){
+        for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
             cJSON* todo = cJSON_GetArrayItem(todos, i);
             printf("\nId: %s\nTitel: %s\nDescription: %s\n", cJSON_GetObjectItem(todo, "id")->valuestring, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
-            cJSON *flags = cJSON_GetObjectItem(todo, "flags");
+            cJSON* flags = cJSON_GetObjectItem(todo, "flags");
             printf("Flags: ");
-            for(int ii = 0; ii < cJSON_GetArraySize(flags); ii++){
+            for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
                 printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
             }
             printf("\n");
@@ -126,23 +149,23 @@ int EvaluateOperation(char* argv[])
     int operation = 0;
     switch (*argv[argnumber]) {
     case 'a':
-        //ADD
+        // ADD
         operation = 1;
         break;
     case 'e':
-        //EDIT
+        // EDIT
         operation = 2;
         break;
     case 'r':
-        //REMOVE
+        // REMOVE
         operation = 3;
         break;
     case 'f':
-        //FINISH
+        // FINISH
         operation = 4;
         break;
     case 'l':
-        //LIST
+        // LIST
         operation = 5;
         break;
     }
