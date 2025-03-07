@@ -9,24 +9,25 @@ const int argnumber = 1;
 const char* todolist = "~/.todo/todo.json";
 const char* todolist_history = "~/.todo/todo_history.json";
 
-void throwError(const char* message)
+void ThrowError(const char* message)
 {
     fprintf(stderr, "Error: %s\n", message);
     exit(EXIT_FAILURE);
 }
 
-void saveJsonToFile(const char* filename, cJSON* json)
-{ char* jsonString = cJSON_Print(json);
+void SaveJsonToFile(const char* filename, cJSON* json)
+{
+    char* jsonString = cJSON_Print(json);
     printf("%s", jsonString);
     if (!jsonString) {
-        throwError("Failed to convert JSON to string\n");
+        ThrowError("Failed to convert JSON to string\n");
     }
 
     FILE* file = fopen(filename, "a");
     if (!file) {
         free(jsonString);
         char *errorMsg = "Failed to open file: %s\n", filename;
-        throwError(errorMsg);
+        ThrowError(errorMsg);
     }
 
     fprintf(file, "%s", jsonString);
@@ -49,11 +50,11 @@ cJSON* CreateObject(int id, char* titel, char* description, char* flags[], int f
     return json;
 }
 
-void Operation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
+void ExecuteOperation(int id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
         cJSON* json = CreateObject(id, titel, description, flags, flagCount);
-        saveJsonToFile(todolist, json);
+        SaveJsonToFile(todolist, json);
         cJSON_Delete(json);
     }
     if (operation == 2) { }
@@ -88,7 +89,7 @@ int EvaluateOperation(char* argv[])
         break;
     }
     if (operation == 0) {
-        throwError("No valid operation given");
+        ThrowError("No valid operation given");
     }
     return operation;
 }
@@ -100,7 +101,6 @@ int main(int argc, char* argv[])
     char* description;
     char* flags[argc];
     int flagCount = 0;
-
     int operation = EvaluateOperation(argv);
 
     for (int i = 0; i < argc; i++) {
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    Operation(id, titel, description, flags, flagCount, operation);
+    ExecuteOperation(id, titel, description, flags, flagCount, operation);
 
     return 0;
 }
