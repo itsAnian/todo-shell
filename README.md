@@ -20,6 +20,8 @@
 - Add todos with "todo add -t "..." -d "..." #... #... 
     -t = title | -d = description | #... = topic
 - global todos will be saved in ~/.todolist/todo & ~/.todolist/todo_history
-- local todos will be saved in ./.todolist/todo ./.todolist/todo_history
+- (local todos will be saved in ./.todolist/todo ./.todolist/todo_history)
 - the files will be in json format where the id is the "primary key"
 - every todo will thet a id autoasigned (hashvalue?)
+- the todos will be saved in a json array
+- to add a todo to the list, the array has to be in the ram --> add new object --> write to file
