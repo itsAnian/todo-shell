@@ -24,7 +24,8 @@ cJSON* ReadJsonFromFile(const char* filename)
 {
     FILE* file = fopen(filename, "r");
     if (!file) {
-        ThrowError("Failed to open File (ReadJsonFromFile())");
+        file = fopen(filename, "w+");
+        printf("Failed to open File (ReadJsonFromFile()) - created new file");
     }
 
     fseek(file, 0, SEEK_END);
