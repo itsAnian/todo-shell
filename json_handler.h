@@ -4,6 +4,6 @@
 #include "cJSON.h"
 void SaveJsonToFile(const char* filename, cJSON* json);
 cJSON* ReadJsonFromFile(const char* filename);
-cJSON* CreateObject(char* id, char* titel, char* description, char* flags[], int flagCount);
+cJSON* CreateObject(char* id, char* title, char* description, char* flags[], int flagCount);
 
 #endif

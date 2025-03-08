@@ -23,7 +23,7 @@ char* GenerateId(int length)
 
 void PrintJsonObject(cJSON* obj)
 {
-    printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(obj, "id")->valuestring, cJSON_GetObjectItem(obj, "titel")->valuestring, cJSON_GetObjectItem(obj, "description")->valuestring);
+    printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(obj, "id")->valuestring, cJSON_GetObjectItem(obj, "title")->valuestring, cJSON_GetObjectItem(obj, "description")->valuestring);
     cJSON* flags = cJSON_GetObjectItem(obj, "flags");
     printf("\033[1;36mFlags: \033[0m");
     for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {

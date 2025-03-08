@@ -2,6 +2,7 @@
 #include "json_handler.h"
 #include "utils.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -9,39 +10,56 @@ const int argnumber = 1;
 const char* todolist = "/home/anian/.todo/todo.json";
 const char* todolist_history = "/home/anian/.todo/todo_history.json";
 
-void ExecuteOperation(char* id, char* titel, char* description, char* flags[], int flagCount, int operation)
+void ExecuteOperation(char* id, char* title, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
         // ADD
-        cJSON* newTodo = CreateObject(id, titel, description, flags, flagCount);
+        if (title == NULL) {
+            ThrowError("No title given, maybe you forgot the -t");
+        }
+        if (description == NULL) {
+            ThrowError("No description given, maybe you forgot the -d");
+        }
+        cJSON* newTodo = CreateObject(id, title, description, flags, flagCount);
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
         SaveJsonToFile(todolist, todos);
         PrintJsonObject(newTodo);
     }
+
     if (operation == 2) {
         // EDIT
     }
+
     if (operation == 3) {
         // REMOVE
+        if (id == NULL) {
+            ThrowError("No id given, maybe you forgot the -i");
+        }
         cJSON* todos = ReadJsonFromFile(todolist);
         for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
             cJSON* todo = cJSON_GetArrayItem(todos, i);
             if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
+                PrintJsonObject(cJSON_GetArrayItem(todos, i));
                 cJSON_DeleteItemFromArray(todos, i);
                 break;
             }
         }
         SaveJsonToFile(todolist, todos);
     }
+
     if (operation == 4) {
         // FINISH
+        if (id == NULL) {
+            ThrowError("No id given, maybe you forgot the -i");
+        }
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON* todo_history = ReadJsonFromFile(todolist_history);
         for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
             cJSON* todo = cJSON_GetArrayItem(todos, i);
             if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
                 cJSON_AddItemToArray(todo_history, cJSON_Duplicate(todo, 1));
+                PrintJsonObject(cJSON_GetArrayItem(todos, i));
                 cJSON_DeleteItemFromArray(todos, i);
                 break;
             }
@@ -49,6 +67,7 @@ void ExecuteOperation(char* id, char* titel, char* description, char* flags[], i
         SaveJsonToFile(todolist, todos);
         SaveJsonToFile(todolist_history, todo_history);
     }
+
     if (operation == 5) {
         // LIST
         cJSON* todos = ReadJsonFromFile(todolist);
@@ -105,16 +124,16 @@ int EvaluateOperation(char* argv[])
 
 int main(int argc, char* argv[])
 {
-    char* id;
-    char* titel;
-    char* description;
+    char* id = NULL;
+    char* title = NULL;
+    char* description = NULL;
     char* flags[argc];
     int flagCount = 0;
     int operation = EvaluateOperation(argv);
 
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-t") == 0) {
-            titel = argv[i + 1];
+            title = argv[i + 1];
         }
         if (strcmp(argv[i], "-d") == 0) {
             description = argv[i + 1];
@@ -128,7 +147,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    ExecuteOperation(id, titel, description, flags, flagCount, operation);
+    ExecuteOperation(id, title, description, flags, flagCount, operation);
 
     return 0;
 }

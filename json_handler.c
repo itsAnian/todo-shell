@@ -47,12 +47,12 @@ cJSON* ReadJsonFromFile(const char* filename)
     return jsonArray;
 }
 
-cJSON* CreateObject(char* id, char* titel, char* description, char* flags[], int flagCount)
+cJSON* CreateObject(char* id, char* title, char* description, char* flags[], int flagCount)
 {
     cJSON* json = cJSON_CreateObject();
     char* randomId = GenerateId(5);
     cJSON_AddStringToObject(json, "id", randomId);
-    cJSON_AddStringToObject(json, "titel", titel);
+    cJSON_AddStringToObject(json, "title", title);
     cJSON_AddStringToObject(json, "description", description);
     cJSON* flagsArray = cJSON_CreateArray();
     for (int i = 0; i < flagCount; i++) {
