@@ -88,6 +88,24 @@ cJSON* CreateObject(char* id, char* titel, char* description, char* flags[], int
     return json;
 }
 
+void PrintJsonObject(cJSON* obj)
+{
+    printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(obj, "id")->valuestring, cJSON_GetObjectItem(obj, "titel")->valuestring, cJSON_GetObjectItem(obj, "description")->valuestring);
+    cJSON* flags = cJSON_GetObjectItem(obj, "flags");
+    printf("\033[1;36mFlags: \033[0m");
+    for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
+        printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
+    }
+    printf("\n");
+}
+void PrintJsonArray(cJSON* jsonArray)
+{
+    for (int i = 0; i < cJSON_GetArraySize(jsonArray); i++) {
+        cJSON* todo = cJSON_GetArrayItem(jsonArray, i);
+        PrintJsonObject(todo);
+    }
+}
+
 void ExecuteOperation(char* id, char* titel, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
@@ -96,14 +114,7 @@ void ExecuteOperation(char* id, char* titel, char* description, char* flags[], i
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
         SaveJsonToFile(todolist, todos);
-
-        printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(newTodo, "id")->valuestring, cJSON_GetObjectItem(newTodo, "titel")->valuestring, cJSON_GetObjectItem(newTodo, "description")->valuestring);
-        cJSON* flags = cJSON_GetObjectItem(newTodo, "flags");
-        printf("\033[1;36mFlags: \033[0m");
-        for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
-            printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
-        }
-        printf("\n");
+        PrintJsonObject(newTodo);
     }
     if (operation == 2) {
         // EDIT
@@ -138,15 +149,22 @@ void ExecuteOperation(char* id, char* titel, char* description, char* flags[], i
     if (operation == 5) {
         // LIST
         cJSON* todos = ReadJsonFromFile(todolist);
-        for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
-            cJSON* todo = cJSON_GetArrayItem(todos, i);
-            printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(todo, "id")->valuestring, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
-            cJSON* flags = cJSON_GetObjectItem(todo, "flags");
-            printf("\033[1;36mFlags: \033[0m");
-            for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
-                printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
+        if (flagCount > 0) {
+            cJSON* sortedTodo = cJSON_CreateArray();
+            for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
+                cJSON* todo = cJSON_GetArrayItem(todos, i);
+                cJSON* flagObj = cJSON_GetObjectItem(todo, "flags");
+                for (int ii = 0; ii < cJSON_GetArraySize(flagObj); ii++) {
+                    for (int iii = 0; iii < flagCount; iii++) {
+                        if (strcmp(cJSON_GetArrayItem(flagObj, ii)->valuestring, flags[iii]) == 0) {
+                            cJSON_AddItemToArray(sortedTodo, cJSON_Duplicate(todo, 1));
+                        }
+                    }
+                }
             }
-            printf("\n");
+            PrintJsonArray(sortedTodo);
+        } else {
+            PrintJsonArray(todos);
         }
     }
 }
