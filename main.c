@@ -9,7 +9,6 @@
 const int argnumber = 1;
 const char* todolist = "/home/anian/.todo/todo.json";
 const char* todolist_history = "/home/anian/.todo/todo_history.json";
-
 void ExecuteOperation(char* id, char* title, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
@@ -29,6 +28,33 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
 
     if (operation == 2) {
         // EDIT
+        if (id == NULL) {
+            ThrowError("No id given, maybe you forgot the -i");
+        }
+        cJSON* todos = ReadJsonFromFile(todolist);
+        for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
+            cJSON* todo = cJSON_GetArrayItem(todos, i);
+            if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
+                cJSON* json = cJSON_GetArrayItem(todos, i);
+                if (title != NULL) {
+                    cJSON_ReplaceItemInObject(json, "title", cJSON_CreateString(title));
+                }
+                if (description != NULL) {
+                    cJSON_ReplaceItemInObject(json, "description", cJSON_CreateString(description));
+                }
+                if (flagCount != 0) {
+                    cJSON_DeleteItemFromObject(json, "flags");
+                    cJSON* flagsArray = cJSON_CreateArray();
+                    for (int i = 0; i < flagCount; i++) {
+                        cJSON_AddItemToArray(flagsArray, cJSON_CreateString(flags[i]));
+                    }
+                    cJSON_AddItemToObject(json, "flags", flagsArray);
+                }
+                PrintJsonObject(json);
+                break;
+            }
+        }
+        SaveJsonToFile(todolist, todos);
     }
 
     if (operation == 3) {
