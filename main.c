@@ -19,7 +19,6 @@ void ThrowError(const char* message)
 void SaveJsonToFile(const char* filename, cJSON* json)
 {
     char* jsonString = cJSON_Print(json);
-    printf("%s", jsonString);
     if (!jsonString) {
         ThrowError("Failed to convert JSON to string\n");
     }
@@ -97,6 +96,14 @@ void ExecuteOperation(char* id, char* titel, char* description, char* flags[], i
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);
         SaveJsonToFile(todolist, todos);
+
+        printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(newTodo, "id")->valuestring, cJSON_GetObjectItem(newTodo, "titel")->valuestring, cJSON_GetObjectItem(newTodo, "description")->valuestring);
+        cJSON* flags = cJSON_GetObjectItem(newTodo, "flags");
+        printf("\033[1;36mFlags: \033[0m");
+        for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
+            printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
+        }
+        printf("\n");
     }
     if (operation == 2) {
         // EDIT
@@ -133,9 +140,9 @@ void ExecuteOperation(char* id, char* titel, char* description, char* flags[], i
         cJSON* todos = ReadJsonFromFile(todolist);
         for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
             cJSON* todo = cJSON_GetArrayItem(todos, i);
-            printf("\nId: %s\nTitel: %s\nDescription: %s\n", cJSON_GetObjectItem(todo, "id")->valuestring, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
+            printf("\n\033[1;36mId: \033[0m%s\n\033[1;36mTitel: \033[0m%s\n\033[1;36mDescription: \033[0m%s\n", cJSON_GetObjectItem(todo, "id")->valuestring, cJSON_GetObjectItem(todo, "titel")->valuestring, cJSON_GetObjectItem(todo, "description")->valuestring);
             cJSON* flags = cJSON_GetObjectItem(todo, "flags");
-            printf("Flags: ");
+            printf("\033[1;36mFlags: \033[0m");
             for (int ii = 0; ii < cJSON_GetArraySize(flags); ii++) {
                 printf("%s ", cJSON_GetArrayItem(flags, ii)->valuestring);
             }
