@@ -74,7 +74,7 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
                 break;
             }
         }
-        if(!idFound){
+        if (!idFound) {
             ThrowError("No id found, maybe there is a typo");
         }
         SaveJsonToFile(todolist, todos);
@@ -98,7 +98,7 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
                 break;
             }
         }
-        if(!idFound){
+        if (!idFound) {
             ThrowError("No id found, maybe there is a typo");
         }
         SaveJsonToFile(todolist, todos);
@@ -108,6 +108,7 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
     if (operation == 5) {
         // LIST
         cJSON* todos = ReadJsonFromFile(todolist);
+        bool alreadyAdded = false;
         if (flagCount > 0) {
             cJSON* sortedTodo = cJSON_CreateArray();
             for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
@@ -117,9 +118,15 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
                     for (int iii = 0; iii < flagCount; iii++) {
                         if (strcmp(cJSON_GetArrayItem(flagObj, ii)->valuestring, flags[iii]) == 0) {
                             cJSON_AddItemToArray(sortedTodo, cJSON_Duplicate(todo, 1));
+                            alreadyAdded = true;
+                            break;
                         }
                     }
+                    if (alreadyAdded) {
+                        break;
+                    }
                 }
+                alreadyAdded = false;
             }
             PrintJsonArray(sortedTodo);
         } else {
