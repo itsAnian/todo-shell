@@ -6,7 +6,7 @@
 
 void ThrowError(const char* message)
 {
-    fprintf(stderr, "Error: %s\n", message);
+    fprintf(stderr, "\033[1;31mError: \033[0m%s\n", message);
     exit(EXIT_FAILURE);
 }
 

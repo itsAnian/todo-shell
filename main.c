@@ -63,14 +63,19 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
         if (id == NULL) {
             ThrowError("No id given, maybe you forgot the -i");
         }
+        bool idFound = false;
         cJSON* todos = ReadJsonFromFile(todolist);
         for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
             cJSON* todo = cJSON_GetArrayItem(todos, i);
             if (strcmp(cJSON_GetObjectItem(todo, "id")->valuestring, id) == 0) {
                 PrintJsonObject(cJSON_GetArrayItem(todos, i));
                 cJSON_DeleteItemFromArray(todos, i);
+                idFound = true;
                 break;
             }
+        }
+        if(!idFound){
+            ThrowError("No id found, maybe there is a typo");
         }
         SaveJsonToFile(todolist, todos);
     }
@@ -80,6 +85,7 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
         if (id == NULL) {
             ThrowError("No id given, maybe you forgot the -i");
         }
+        bool idFound = false;
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON* todo_history = ReadJsonFromFile(todolist_history);
         for (int i = 0; i < cJSON_GetArraySize(todos); i++) {
@@ -88,8 +94,12 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
                 cJSON_AddItemToArray(todo_history, cJSON_Duplicate(todo, 1));
                 PrintJsonObject(cJSON_GetArrayItem(todos, i));
                 cJSON_DeleteItemFromArray(todos, i);
+                idFound = true;
                 break;
             }
+        }
+        if(!idFound){
+            ThrowError("No id found, maybe there is a typo");
         }
         SaveJsonToFile(todolist, todos);
         SaveJsonToFile(todolist_history, todo_history);
