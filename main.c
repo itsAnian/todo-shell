@@ -7,8 +7,9 @@
 #include <unistd.h>
 
 const int argnumber = 1;
-const char* todolist = "/home/anian/.todo/todo.json";
-const char* todolist_history = "/home/anian/.todo/todo_history.json";
+const char* todolist;
+const char* todolist_history;
+
 void ExecuteOperation(char* id, char* title, char* description, char* flags[], int flagCount, int operation)
 {
     if (operation == 1) {
@@ -156,6 +157,9 @@ int main(int argc, char* argv[])
     char* flags[argc];
     int flagCount = 0;
     int operation = EvaluateOperation(argv);
+
+    todolist = GetPath(false);
+    todolist_history = GetPath(true);
 
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-t") == 0) {

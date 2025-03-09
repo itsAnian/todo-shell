@@ -1,4 +1,5 @@
 #include "cJSON.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -7,6 +8,20 @@ void ThrowError(const char* message)
 {
     fprintf(stderr, "Error: %s\n", message);
     exit(EXIT_FAILURE);
+}
+
+char* GetPath(bool history)
+{
+    const char* home = getenv("HOME");
+    int pathSize = 512;
+    char* path = malloc(pathSize);
+
+    if (history == true) {
+        snprintf(path, pathSize, "%s/.todo/todo_history.json", home);
+    } else {
+        snprintf(path, pathSize, "%s/.todo/todo.json", home);
+    }
+    return path;
 }
 
 char* GenerateId(int length)
