@@ -8,9 +8,7 @@ void ThrowError(const char* message)
 {
     fprintf(stderr, "\033[1;31mError: \033[0m%s\n", message);
     exit(EXIT_FAILURE);
-}
-
-char* GetPath(bool history)
+} char* GetPath(bool history)
 {
     const char* home = getenv("HOME");
     int pathSize = 512;
@@ -53,4 +51,25 @@ void PrintJsonArray(cJSON* jsonArray)
         cJSON* todo = cJSON_GetArrayItem(jsonArray, i);
         PrintJsonObject(todo);
     }
+}
+
+void PrintHelp() {
+    printf("Help for todo command:\n\n");
+    printf("Usage:\n");
+    printf("  todo add -t \"<Title>\" -d \"<Description>\" \"#<Topic1>\" \"#<Topic2>\" ...\n\n");
+    printf("Options:\n");
+    printf("  -t <Title>        The title of the task.\n");
+    printf("  -d <Description>  A detailed description of the task.\n");
+    printf("  #<Topic>          One or more topics for the task (with # before the topic).\n");
+    printf("  -i <ID>           The ID of the task (for editing, removing, or completing).\n\n");
+    printf("Examples:\n");
+    printf("  todo add -t \"Project Preparation\" -d \"Creating the project plan\" \"#Project\" \"#Work\"\n");
+    printf("  todo add -t \"Code Review\" -d \"Reviewing the code for errors\" \"#Development\" \"#Team\"\n\n");
+    printf("Other commands:\n");
+    printf("  todo edit -i <ID> -t \"<New Title>\" -d \"<New Description>\" \"#NewFlag\"\n");
+    printf("  todo remove -i <ID>\n");
+    printf("  todo finish -i <ID>\n");
+    printf("  todo list\n");
+    printf("  todo list \"#Flag\"\n");
+    exit(EXIT_FAILURE);
 }

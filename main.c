@@ -152,6 +152,10 @@ int EvaluateOperation(char* argv[])
         // LIST
         operation = 5;
         break;
+    case 'h':
+        // HELP
+        PrintHelp();
+        break;
     }
     if (operation == 0) {
         ThrowError("No valid operation given");
