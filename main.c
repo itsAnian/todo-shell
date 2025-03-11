@@ -9,6 +9,7 @@
 const int argnumber = 1;
 const char* todolist;
 const char* todolist_history;
+char* foldername = "/.todo";
 
 void ExecuteOperation(char* id, char* title, char* description, char* flags[], int flagCount, int operation)
 {
@@ -172,6 +173,10 @@ int EvaluateOperation(char* argv[])
 
 int main(int argc, char* argv[])
 {
+    if(argc == 1){
+        PrintHelp();
+    }
+
     char* id = NULL;
     char* title = NULL;
     char* description = NULL;
@@ -179,8 +184,11 @@ int main(int argc, char* argv[])
     int flagCount = 0;
     int operation = EvaluateOperation(argv);
 
-    todolist = GetPath(false);
-    todolist_history = GetPath(true);
+    CreateFolderIfNotExists(GetPath(foldername, ""));
+
+    todolist = GetPath(foldername, "/todo.json");
+    todolist_history = GetPath(foldername, "/todo_history.json");
+
 
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-t") == 0) {

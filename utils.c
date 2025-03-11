@@ -2,23 +2,24 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 
 void ThrowError(const char* message)
 {
     fprintf(stderr, "\033[1;31mError: \033[0m%s\n", message);
     exit(EXIT_FAILURE);
-} char* GetPath(bool history)
+}
+
+char* GetPath(char* foldername, char* filename)
 {
     const char* home = getenv("HOME");
     int pathSize = 512;
     char* path = malloc(pathSize);
 
-    if (history == true) {
-        snprintf(path, pathSize, "%s/.todo/todo_history.json", home);
-    } else {
-        snprintf(path, pathSize, "%s/.todo/todo.json", home);
-    }
+    snprintf(path, pathSize, "%s%s%s", home, foldername, filename);
+
     return path;
 }
 
@@ -53,7 +54,8 @@ void PrintJsonArray(cJSON* jsonArray)
     }
 }
 
-void PrintHelp() {
+void PrintHelp()
+{
     printf("Help for todo command:\n\n");
     printf("Usage:\n");
     printf("  todo add -t \"<Title>\" -d \"<Description>\" \"#<Topic1>\" \"#<Topic2>\" ...\n\n");
@@ -72,4 +74,12 @@ void PrintHelp() {
     printf("  todo list\n");
     printf("  todo list \"#Flag\"\n");
     exit(EXIT_FAILURE);
+}
+
+void CreateFolderIfNotExists(char* foldername)
+{
+    struct stat st = { 0 };
+    if (stat(foldername, &st) == -1) {
+        mkdir(foldername, 0700);
+    }
 }
