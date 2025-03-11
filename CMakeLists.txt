@@ -6,5 +6,5 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SOURCE_FILES main.c cJSON.c json_handler.c utils.c)
 
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(todo-shell ${SOURCE_FILES})
-target_include_directories(todo-shell PRIVATE ${CMAKE_SOURCE_DIR})
+add_executable(todo ${SOURCE_FILES})
+target_include_directories(todo PRIVATE ${CMAKE_SOURCE_DIR})

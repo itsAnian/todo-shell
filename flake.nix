@@ -68,14 +68,14 @@
                     '';
                 installPhase = ''
                     mkdir -p $out/bin
-                    cp todo-shell $out/bin/
+                    cp todo $out/bin/
                     '';
             };
 
 # Define a run routine (if applicable)
             defaultApp.${system} = {
                 type = "app";
-                program = "${self.defaultPackage.${system}}/bin/todo-shell";
+                program = "${self.defaultPackage.${system}}/bin/todo";
             };
         };
 }
