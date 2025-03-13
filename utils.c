@@ -12,6 +12,11 @@ void ThrowError(const char* message)
     exit(EXIT_FAILURE);
 }
 
+void WarnLog(const char* message)
+{
+    fprintf(stderr, "\033[1;33mWarning: \033[0m%s\n", message);
+}
+
 char* GetPath(char* foldername, char* filename)
 {
     const char* home = getenv("HOME");

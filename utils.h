@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 void ThrowError(const char* message);
+void WarnLog(const char* message);
 char* GetPath(char* foldername, char* filename);
 char* GenerateId(int length);
 void PrintJsonObject(cJSON* obj);
