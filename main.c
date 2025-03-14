@@ -18,9 +18,12 @@ void ExecuteOperation(char* id, char* title, char* description, char* flags[], i
         if (title == NULL) {
             ThrowError("No title given, maybe you forgot the -t");
         }
+
         if (description == NULL) {
-            ThrowError("No description given, maybe you forgot the -d");
+            WarnLog("No description given, maybe you forgot the -d");
+            description = "";
         }
+        
         cJSON* newTodo = CreateObject(id, title, description, flags, flagCount);
         cJSON* todos = ReadJsonFromFile(todolist);
         cJSON_AddItemToArray(todos, newTodo);

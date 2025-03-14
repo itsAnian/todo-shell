@@ -25,7 +25,7 @@ cJSON* ReadJsonFromFile(const char* filename)
     FILE* file = fopen(filename, "r");
     if (!file) {
         file = fopen(filename, "w+");
-        printf("Failed to open File (ReadJsonFromFile()) - created new file");
+        WarnLog("Failed to open File (ReadJsonFromFile()) - created new file");
     }
 
     fseek(file, 0, SEEK_END);
@@ -42,7 +42,7 @@ cJSON* ReadJsonFromFile(const char* filename)
 
     if (!jsonArray) {
         cJSON* jsonArray = cJSON_CreateArray();
-        printf("Empty file, or parsing failed");
+        WarnLog("Empty file, or parsing failed");
         return jsonArray;
     }
     return jsonArray;
